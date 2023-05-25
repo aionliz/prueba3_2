@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title></title>
+</head>
+
+<body>
+    <style type="text/css">
+        #ocean {
+            background-image: url("ocean.jpg");
+            width: 900px;
+            height: 700px;
+        }
+
+        .player {
+            position: absolute;
+            background-image: url("player.png");
+            width: 70px;
+            height: 75px;
+        }
+
+        .enemy {
+            position: absolute;
+            background-image: url("enemy.png");
+            width: 70px;
+            height: 75px;
+        }
+
+        .misil {
+            position: absolute;
+            background-color: red;
+            width: 2px;
+            height: 10px;
+        }
+    </style>
+    <div id="ocean">
+        <div id="players">
+            <div id="player"></div>
+        </div>
+        <div id="enemies">
+            <div class="enemy"></div>
+        </div>
+        <div id="misiles">
+        </div>
+        <h1>Puntuación actual: <span id="puntaje"></span></h1>
+    </div>
+    <script type="text/javascript">
+        /* 
+        */
+
+
+        var player = {
+            left: 450,
+            top: 620
+        }
+        var enemies = [
+            { left: 380, top: 270 },
+            { left: 460, top: 200 },
+            { left: 300, top: 200 },
+            { left: 220, top: 120 },
+            { left: 530, top: 120 },
+        ]
+
+        function dibujarJugador() {
+            var content = '';
+            content += '<div class="player" style="left:' + player.left + 'px; top:' + player.top + 'px;"></div>';
+            document.getElementById('players').innerHTML = content;
+        }
+        function dibujarEnemigos() {
+            var content = '';
+            for (var i = 0; i < enemies.length; i++) {
+                content += '<div class="enemy" style="left:' + enemies[i].left + 'px; top:' + enemies[i].top + 'px;"></div>';
+            }
+            document.getElementById('enemies').innerHTML = content;
+
+        }
+        var misiles = [];
+        function dibujarMisiles() {
+            var content = "";
+            for (var i = 0; i < misiles.length; i++) {
+                content += "<div class='misil' style='left:" + misiles[i].left + "px; top:" + misiles[i].top + "px;'></div>";
+            }
+            document.getElementById("misiles").innerHTML = content;
+        }
+        function moverEnemigos() {
+            for (var i = 0; i < enemies.length; i++) {
+                enemies[i].top = enemies[i].top + 5;
+                
+            }
+        }
+        function moverMisiles() {
+            for (var i = 0; i < misiles.length; i++) {
+                misiles[i].top = misiles[i].top - 5;
+            }
+        }
+        function borrarEnemigo(idxEnemigo) {
+            enemies.splice(idxEnemigo, 1);
+        }
+        function borrarMisil(idxMisil) {
+            misiles.splice(idxMisil, 1);
+        }
+        document.onkeydown = function (e) {
+            if (e.keyCode == 37 && player.left >= 10) {
+                player.left = player.left - 10;
+            } //IZQUIERDA
+            if (e.keyCode == 38 && player.top >= 550) {
+                player.top = player.top - 10;
+            } //ARRIBA
+            if (e.keyCode == 39 && player.left <= 830) {
+                player.left = player.left + 10;
+            } //DERECHA
+            if (e.keyCode == 40 && player.top <= 620) {
+                player.top = player.top + 10;
+            } //ABAJO
+            if (e.keyCode == 32) { // TECLA ESPACIO
+                misiles.push({ left: player.left + 34, top: player.top - 8 }); // Agrega un misil a la lista de misiles (dispara un misil) (NO TOCAR) 
+            }
+            dibujarJugador(); // Vuelve a dibujar el jugador cuando se mueve (NO TOCAR)
+        }
+        dibujarJugador(); // Dibuja el jugador (NO TOCAR)
+        dibujarEnemigos(); // Dibuja los enemigos (NO TOCAR)
+
+        var puntos = 0;
+
+        function contactoMisil(params) { // Esta funcion hace que al disparar el misil y al impactar al enemigo, el enemigo y el misil disparado desaparecen
+            for (var i = 0; i < enemies.length; i++) {
+                for (var j = 0; j < misiles.length; j++) {
+                    if (misiles[j].top < enemies[i].top + 75
+                        && misiles[j].top > enemies[i].top
+                        && misiles[j].left > enemies[i].left
+                        && misiles[j].left < enemies[i].left + 70) {
+                        borrarEnemigo(i);
+                        borrarMisil(j);
+                        puntos = puntos + 1;
+                        document.getElementById('puntaje').innerHTML = puntos; 
+                    } //esta funcion hace que al eliminar un enemigo se supen puntos
+                }
+            }
+        }
+        function mePasePo() {
+            for (var i = 0; i < enemies.length; i++) {
+                if (enemies[i].top > 650){
+
+                    borrarEnemigo(i);
+                }
+            }
+            /// BONUS
+        }
+
+        function motorDelJuego() { // Esta función se encarga estar atenta a todos los cambios en el juego, como el movimiento de los enemigos y otras cosas (NO TOCAR)
+            moverEnemigos();
+            dibujarEnemigos();
+            moverMisiles();
+            dibujarMisiles();
+            contactoMisil();
+            mePasePo();
+
+        }
+        setInterval(motorDelJuego, 100);
+
+    </script>
+</body>
+
+</html>
